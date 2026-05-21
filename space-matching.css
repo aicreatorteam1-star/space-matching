@@ -1,0 +1,115 @@
+// =====================================================================
+//  <ItemCounter />
+//  ส่วนที่ 2: ปรับจำนวนสิ่งของแต่ละประเภท ผ่านปุ่ม + / −
+//  -----------------------------------------------------------------
+//  UI/UX rules:
+//   • ปุ่ม + / −  : ขนาด 40×40 px, radius 12px (icon-only standard)
+//   • Hover      : bg → electricPurple/8, transform scale(1.05)
+//   • Disabled   : ปุ่ม − จะ disabled เมื่อค่าเป็น 0
+// =====================================================================
+import React from "react";
+import {
+  Package,
+  Briefcase,
+  Shirt,
+  Refrigerator,
+  Sofa,
+  Plus,
+  Minus,
+  Boxes,
+  type LucideIcon,
+} from "lucide-react";
+import { ITEM_DEFS } from "../utils/matchRoom";
+import type { ItemCounts, ItemKey } from "../types";
+
+interface Props {
+  value: ItemCounts;
+  onChange: (next: ItemCounts) => void;
+}
+
+/** map iconName → Lucide component */
+const ICONS: Record<string, LucideIcon> = {
+  Package,
+  Briefcase,
+  Shirt,
+  Refrigerator,
+  Sofa,
+};
+
+const MAX_PER_ITEM = 99;
+
+export const ItemCounter: React.FC<Props> = ({ value, onChange }) => {
+  const update = (key: ItemKey, delta: number): void => {
+    const current = value[key] ?? 0;
+    const next = Math.max(0, Math.min(MAX_PER_ITEM, current + delta));
+    if (next === current) return;
+    onChange({ ...value, [key]: next });
+  };
+
+  return (
+    <section aria-labelledby="item-heading" className="sm-section">
+      <header className="sm-section__head">
+        <span className="sm-step-pill">ขั้นตอนที่ 2</span>
+        <h2 id="item-heading" className="sm-section__title">
+          <Boxes size={22} strokeWidth={2.25} aria-hidden />
+          ระบุรายละเอียดสิ่งของ
+        </h2>
+        <p className="sm-section__sub">
+          กดปุ่ม + / − เพื่อระบุจำนวนของแต่ละประเภท
+          ระบบจะนำมาคำนวณขนาดห้องที่เหมาะสมโดยอัตโนมัติ
+        </p>
+      </header>
+
+      <ul className="sm-item-list">
+        {ITEM_DEFS.map((def) => {
+          const IconComp: LucideIcon = ICONS[def.iconName] ?? Package;
+          const count = value[def.key] ?? 0;
+          const disabledMinus = count <= 0;
+          const disabledPlus = count >= MAX_PER_ITEM;
+          return (
+            <li key={def.key} className="sm-item-row">
+              <span className="sm-item-row__icon" aria-hidden>
+                <IconComp size={28} strokeWidth={1.8} />
+              </span>
+
+              <div className="sm-item-row__text">
+                <div className="sm-item-row__label">{def.label}</div>
+                <div className="sm-item-row__desc">{def.description}</div>
+              </div>
+
+              <div
+                className="sm-counter"
+                role="group"
+                aria-label={`จำนวน ${def.label}`}
+              >
+                <button
+                  type="button"
+                  className="sm-counter__btn"
+                  onClick={() => update(def.key, -1)}
+                  disabled={disabledMinus}
+                  aria-label={`ลด ${def.label}`}
+                >
+                  <Minus size={18} strokeWidth={2.5} />
+                </button>
+
+                <span className="sm-counter__value" aria-live="polite">
+                  {count}
+                </span>
+
+                <button
+                  type="button"
+                  className="sm-counter__btn sm-counter__btn--primary"
+                  onClick={() => update(def.key, +1)}
+                  disabled={disabledPlus}
+                  aria-label={`เพิ่ม ${def.label}`}
+                >
+                  <Plus size={18} strokeWidth={2.5} />
+                </button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+};

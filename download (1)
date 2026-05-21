@@ -1,0 +1,55 @@
+// =====================================================================
+//  Space Matching Platform — Type Definitions
+//  All shared types for the storage-space matching flow.
+// =====================================================================
+
+/** สาขาที่เปิดให้บริการรับฝากของ */
+export type BranchId = "sukhumvit" | "bangna" | "rama3";
+
+export interface Branch {
+  id: BranchId;
+  name: string;           // ชื่อสาขา (ไทย)
+  nameEn: string;         // ชื่อสาขา (อังกฤษ)
+  address: string;        // ที่อยู่ย่อ
+  availableRooms: number; // จำนวนห้องว่าง (mock)
+}
+
+/** ประเภทไอเทมที่รองรับ */
+export type ItemKey = "box" | "luggage" | "wardrobe" | "fridge" | "sofa";
+
+export interface ItemDef {
+  key: ItemKey;
+  label: string;       // ชื่อภาษาไทย
+  description: string; // คำอธิบายสั้น
+  units: number;       // น้ำหนัก unit ของไอเทม (ใช้คำนวณ S/M/L)
+  iconName: string;    // Lucide icon name
+}
+
+/** จำนวนของแต่ละไอเทมที่ผู้ใช้เลือก */
+export type ItemCounts = Record<ItemKey, number>;
+
+/** ผลลัพธ์การจับคู่ห้อง */
+export type RoomSize = "S" | "M" | "L" | "XL";
+
+export interface RoomMatch {
+  size: RoomSize;
+  label: string;
+  area: string;          // เช่น "2 ตร.ม."
+  pricePerMonth: number; // บาทต่อเดือน
+  description: string;
+  capacityUnits: number; // upper bound units
+}
+
+/** ข้อมูลผู้ติดต่อสำหรับให้ จนท. ติดต่อกลับ */
+export interface ContactInfo {
+  fullName: string;
+  phone: string;
+  preferredContactTime?: string;
+}
+
+/** สถานะรวมของทั้งหน้า */
+export interface SpaceMatchingState {
+  branch: BranchId | null;
+  items: ItemCounts;
+  contact: ContactInfo;
+}
